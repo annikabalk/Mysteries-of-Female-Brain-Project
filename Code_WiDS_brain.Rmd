@@ -1,0 +1,28 @@
+---
+title: "Machine Learning Code_FinalProj"
+author: "Annika Balk, Chloe Singer, Jon Niemann, You Been Park"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Beginning Stages of Code
+Commit your updates to the repo when you can
+
+```{r}
+
+
+
+
+
+```
+
+
+
+```{r}
+##
+```
+
