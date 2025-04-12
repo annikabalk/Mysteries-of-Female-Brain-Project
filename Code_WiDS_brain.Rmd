@@ -13,16 +13,44 @@ knitr::opts_chunk$set(echo = TRUE)
 Commit your updates to the repo when you can
 
 ```{r}
+library(tidyverse)
 
+extract_upper_triangle <- function(mat) {
+  mat[upper.tri(mat)]
+}
 
+process_connectomes <- function(folder_path) {
+  tsv_files <- list.files(folder_path, pattern = "\\.tsv$", full.names = TRUE) %>%
+    unique()
+  
+  data <- tsv_files %>%
+    set_names(~ tools::file_path_sans_ext(basename(.))) %>%
+    map_df(~ {
+      mat <- as.matrix(read_tsv(.x, col_names = FALSE))
+      tibble(id = tools::file_path_sans_ext(basename(.x)),
+             features = list(extract_upper_triangle(mat)))
+    })
+  
+  # Turn the list-column into a wide format dataframe
+  data_features <- data %>%
+  unnest_wider(features, names_sep = "_")
 
+  
+  return(data_features)
+}
 
+# Run for training and test sets
+train_path <- "~/Desktop/data/train_tsv/train_tsv"
+test_path <- "~/Desktop/data/test_tsv/test_tsv"
+
+train_df <- process_connectomes(train_path)
+test_df  <- process_connectomes(test_path)
+
+train_metadata <- read_csv("~/Desktop/data/metadata/training_metadata.csv")
+test_metadata <- read_csv("~/Desktop/data/metadata/test_metadata.csv")
+
+# Join metadata to feature vectors
+train_final <- left_join(train_metadata, train_df, by = c("participant_id" = "id"))
+test_final  <- left_join(test_metadata,  test_df,  by = c("participant_id" = "id"))
 
 ```
-
-
-
-```{r}
-##
-```
-
