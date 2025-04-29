@@ -26,28 +26,34 @@ process_connectomes <- function(folder_path) {
   data <- tsv_files %>%
     set_names(~ tools::file_path_sans_ext(basename(.))) %>%
     map_df(~ {
-      mat <- as.matrix(read_tsv(.x, col_names = FALSE))
+      mat <- as.matrix(read_tsv(.x, col_names = FALSE, show_col_types = FALSE))
       tibble(id = tools::file_path_sans_ext(basename(.x)),
              features = list(extract_upper_triangle(mat)))
     })
-  
-  # Turn the list-column into a wide format dataframe
-  data_features <- data %>%
-  unnest_wider(features, names_sep = "_")
 
-  
+  # DEBUG: Check if `features` column exists
+  print(names(data))
+  print(head(data))
+
+  # Fix: unnest the list-column
+  data_features <- data %>%
+    unnest_wider(features, names_sep = "_")
+
   return(data_features)
 }
 
 # Run for training and test sets
-train_path <- "~/Desktop/data/train_tsv/train_tsv"
-test_path <- "~/Desktop/data/test_tsv/test_tsv"
+train_path <- "~/Desktop/Mystery/Mysteries-of-Female-Brain-Project/data/train_tsv/train_tsv"
+test_path <- "~/Desktop/Mystery/Mysteries-of-Female-Brain-Project/data/test_tsv/test_tsv"
 
-train_df <- process_connectomes(train_path)
+list.files(train_path)
+list.files(test_path)
+
+train_df  <- process_connectomes(train_path)
 test_df  <- process_connectomes(test_path)
 
-train_metadata <- read_csv("~/Desktop/data/metadata/training_metadata.csv")
-test_metadata <- read_csv("~/Desktop/data/metadata/test_metadata.csv")
+train_metadata <- read_csv("~/Desktop/Mystery/Mysteries-of-Female-Brain-Project/data/metadata/training_metadata.csv")
+test_metadata <- read_csv("~/Desktop/Mystery/Mysteries-of-Female-Brain-Project/data/metadata/test_metadata.csv")
 
 # Join metadata to feature vectors
 train_final <- left_join(train_metadata, train_df, by = c("participant_id" = "id"))
